@@ -39,6 +39,9 @@ namespace MacrosApp
             this.label10 = new System.Windows.Forms.Label();
             this.uiMacrosHistoryControl = new MacrosApp.MacrosHistoryControl();
             this.uiDerevoRadioButton = new System.Windows.Forms.RadioButton();
+            this.uiKuricaCustomRadioButton = new System.Windows.Forms.RadioButton();
+            this.uiKuricaKormShiftTextBox = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // textBox
@@ -313,10 +316,41 @@ namespace MacrosApp
             this.uiDerevoRadioButton.Text = "деревья";
             this.uiDerevoRadioButton.UseVisualStyleBackColor = true;
             // 
+            // uiKuricaCustomRadioButton
+            // 
+            this.uiKuricaCustomRadioButton.AutoSize = true;
+            this.uiKuricaCustomRadioButton.Location = new System.Drawing.Point(304, 109);
+            this.uiKuricaCustomRadioButton.Name = "uiKuricaCustomRadioButton";
+            this.uiKuricaCustomRadioButton.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.uiKuricaCustomRadioButton.Size = new System.Drawing.Size(91, 17);
+            this.uiKuricaCustomRadioButton.TabIndex = 30;
+            this.uiKuricaCustomRadioButton.Text = "произвольно";
+            this.uiKuricaCustomRadioButton.UseVisualStyleBackColor = true;
+            // 
+            // uiKuricaKormShiftTextBox
+            // 
+            this.uiKuricaKormShiftTextBox.Location = new System.Drawing.Point(401, 108);
+            this.uiKuricaKormShiftTextBox.Name = "uiKuricaKormShiftTextBox";
+            this.uiKuricaKormShiftTextBox.Size = new System.Drawing.Size(52, 20);
+            this.uiKuricaKormShiftTextBox.TabIndex = 31;
+            this.uiKuricaKormShiftTextBox.Text = "48";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(398, 90);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(190, 13);
+            this.label11.TabIndex = 33;
+            this.label11.Text = "смещение (деревья 64, курицам 32)";
+            // 
             // MainForm
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
             this.ClientSize = new System.Drawing.Size(1230, 580);
+            this.Controls.Add(this.label11);
+            this.Controls.Add(this.uiKuricaKormShiftTextBox);
+            this.Controls.Add(this.uiKuricaCustomRadioButton);
             this.Controls.Add(this.uiDerevoRadioButton);
             this.Controls.Add(this.uiMacrosHistoryControl);
             this.Controls.Add(this.label10);
@@ -385,5 +419,8 @@ namespace MacrosApp
         private Label label10;
         private MacrosHistoryControl uiMacrosHistoryControl;
         private RadioButton uiDerevoRadioButton;
+        private RadioButton uiKuricaCustomRadioButton;
+        private TextBox uiKuricaKormShiftTextBox;
+        private Label label11;
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using MacrosApp.Core;
@@ -46,9 +47,8 @@ namespace MacrosApp
                 LogWrite("MouseButton 	- " + e.Button.ToString());
                 if (_isStartMacros)
                 {
-                    var myAction = new MyAction
+                    var myAction = new MouseAction
                     {
-                        IsMouseClick = true,
                         X = e.X,
                         Y = e.Y,
                         Button = e.Button,
@@ -86,9 +86,28 @@ namespace MacrosApp
         [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
         public static extern void mouse_event(long dwFlags, long dx, long dy, long cButtons, long dwExtraInfo);
 
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
+
+        [DllImport("user32.dll")]
+        static extern bool PostMessage(IntPtr hWnd, UInt32 Msg, int wParam, int lParam);
+
         public void MyKeyUp(object sender, KeyEventArgs e)
         {
             LogWrite("KeyUp 		- " + e.KeyData.ToString());
+            if (_isStartMacros && e.KeyCode != Keys.W)
+            {
+                var myAction = new KeyboardAction
+                {
+                    Key = e.KeyCode,
+                    KeyValue = e.KeyValue,
+                    Delay = (DateTime.Now - _startDate).TotalMilliseconds,
+                    Count = 1,
+                };
+                uiMacrosHistoryControl.AddAction(myAction);
+                _startDate = DateTime.Now;
+            }
+
             if (e.KeyCode == Keys.Q)
             {
                 e.Handled = true;
@@ -110,7 +129,8 @@ namespace MacrosApp
                 e.Handled = true;
                 _isBreak = false;
                 if (uiKuricaKormRadioButton.Checked
-                    || uiDerevoRadioButton.Checked)
+                    || uiDerevoRadioButton.Checked
+                    || uiKuricaCustomRadioButton.Checked)
                 {
                     Thread th = new Thread(GoScriptKormKuricam);
                     th.Start();
@@ -121,10 +141,14 @@ namespace MacrosApp
                     Thread th = new Thread(GoScriptTwoStepWithShift);
                     th.Start();
                 }
-                else
+                else if (uiClassicRadioButton.Checked)
                 {
                     Thread th = new Thread(GoScript);
                     th.Start();
+                }
+                else
+                {
+                    throw new NotImplementedException();
                 }
             }
             if (e.KeyCode == Keys.S)
@@ -153,18 +177,24 @@ namespace MacrosApp
                         {
                             break;
                         }
-                        var myAction = _myActions[iAction];
-                        var x = myAction.X;
-                        var y = myAction.Y;
-                        if ((iAction + 1) % every == 0)
+                        var myAction2 = _myActions[iAction];
+
+                        if (myAction2 is MouseAction)
                         {
-                            var step = shift;
-                            x = x + iStep2 * shift + iStep1 * shift;
-                            y = y + (iStep2 * shift2) * -1 + iStep1 * shift2;
-                        }
-                        if (myAction.IsMouseClick)
-                        {
+                            var myAction = (MouseAction)myAction2;
+                            var x = myAction.X;
+                            var y = myAction.Y;
+                            if ((iAction + 1) % every == 0)
+                            {
+                                var step = shift;
+                                x = x + iStep2 * shift + iStep1 * shift;
+                                y = y + (iStep2 * shift2) * -1 + iStep1 * shift2;
+                            }
                             GoScriptMouseClick(myAction.Delay, myAction.Button, x, y, mouseMoveClickDelay, delay);
+                        }
+                        else if (myAction2 is KeyboardAction)
+                        {
+                            
                         }
                     }
                 }
@@ -183,6 +213,10 @@ namespace MacrosApp
             {
                 step = 64;
             }
+            else if (uiKuricaCustomRadioButton.Checked)
+            {
+                step = Convert.ToInt32(uiKuricaKormShiftTextBox.Text);
+            }
             for (int iStep1 = 0; iStep1 < step1Count; iStep1++)
             {
                 for (int iStep2 = 0; iStep2 < step2Count; iStep2++)
@@ -198,6 +232,10 @@ namespace MacrosApp
                 }
             }
         }
+
+        const UInt32 WM_KEYDOWN = 0x0100;
+        const int WM_KEYUP = 0x101;
+        const int VK_F5 = 0x41;
 
         private void GoScript()
         {
@@ -217,12 +255,23 @@ namespace MacrosApp
                             break;
                         }
 
-                        var x = myAction.X;
-                        var y = myAction.Y;
-
-                        if (myAction.IsMouseClick)
+                        if (myAction is MouseAction)
                         {
-                            GoScriptMouseClick(myAction.Delay, myAction.Button, x, y, mouseMoveClickDelay, delay);
+                            //var x = myAction.X;
+                            //var y = myAction.Y;
+
+                            //if (myAction.IsMouseClick)
+                            //{
+                            //    GoScriptMouseClick(myAction.Delay, myAction.Button, x, y, mouseMoveClickDelay, delay);
+                            //}
+                        }else if(myAction is KeyboardAction)
+                        {
+                            const int nChars = 256;
+                            StringBuilder Buff = new StringBuilder(nChars);
+                            IntPtr handle = GetForegroundWindow();
+                            LogWrite(handle.ToString());
+                            
+                            PostMessage(handle, WM_KEYDOWN, ((KeyboardAction)myAction).KeyValue, 0);
                         }
                     }
                 }
